@@ -1,8 +1,8 @@
 <script>
 	import { parse } from 'fast-xml-parser';
 	import { decode } from 'html-entities';
-	import parseSRT from 'parse-srt';
-	import VirtualList from 'svelte-tiny-virtual-list';
+
+	import Player from './Player.svelte';
 	import Transcripts from './Transcripts.svelte';
 
 	const parserOptions = {
@@ -21,10 +21,13 @@
 	let searchResults = [];
 	let searchQuery;
 	let searchInput = '';
+	let player;
+	let transcriptIndex = 0;
+	let episodeTranscript;
 
 	let feedUrl = '';
-	// feedUrl = 'https://feeds.noagendaassets.com/noagenda.xml'
-	// searchInput = 'curio caster';
+	feedUrl = 'https://feeds.noagendaassets.com/noagenda.xml';
+	searchInput = 'curio caster';
 
 	function searchTranscripts() {
 		searchResults = [];
@@ -82,6 +85,7 @@
 							<li
 								on:click={() => {
 									selectedEpisode = feed.item[result[0]];
+									player.src = selectedEpisode.enclosure['@_url'];
 								}}
 							>
 								{feed.item[result[0]].title} - {result[1].length} occurrence{`${
@@ -92,9 +96,16 @@
 					</ul>
 				</left-pane>
 				<right-pane>
-					<Transcripts episode={selectedEpisode} {searchQuery} />
+					<Transcripts
+						episode={selectedEpisode}
+						{searchQuery}
+						{player}
+						bind:transcriptIndex
+						bind:episodeTranscript
+					/>
 				</right-pane>
 			</pane-container>
+			<Player bind:player bind:transcriptIndex bind:episodeTranscript />
 		{/if}
 	{/if}
 </main>
@@ -125,8 +136,9 @@
 		display: flex;
 		justify-content: space-between;
 		width: 100%;
-		height: calc(100vh - 138px);
+		height: calc(100vh - 208px);
 		overflow: hidden;
+		margin-bottom: 16px;
 	}
 
 	li {

@@ -4,15 +4,12 @@
 
 	export let episode;
 	export let searchQuery = '';
+	export let player;
+	export let transcriptIndex = 0;
+	export let episodeTranscript;
 
-	let transcriptIndex = 0;
 	let scrollToIndex = 0;
 	let currentIndex = 0;
-
-	let player;
-	let playerTime;
-
-	let episodeTranscript;
 
 	let listHeight = 0;
 	let scrollToAlignment = 'start';
@@ -46,8 +43,7 @@
 
 	function jumpToSection(section, index) {
 		if (section.start) {
-			$playerTime = section.start;
-			$player.currentTime = $playerTime;
+			player.currentTime = section.start;
 			transcriptIndex = index;
 		}
 	}
@@ -62,9 +58,9 @@
 			currentIndex = 0;
 			filteredIndices = getAllIndexes(episodeTranscript, transcriptSearchQuery);
 			if (filteredIndices.length > 0) {
-				transcriptIndex = filteredIndices[0];
 				setTimeout(() => {
-					scrollToIndex = transcriptIndex;
+					scrollToIndex = filteredIndices[0];
+					jumpToSection(episodeTranscript?.[scrollToIndex], scrollToIndex);
 				}, 10);
 
 				scrollToAlignment = 'center';
@@ -99,6 +95,7 @@
 		scrollToIndex = undefined;
 		setTimeout(() => {
 			(scrollToIndex = filteredIndices[currentIndex]), 1;
+			jumpToSection(episodeTranscript?.[scrollToIndex], scrollToIndex);
 		});
 	}
 	function getPreviousIndex() {
@@ -109,6 +106,7 @@
 		scrollToIndex = undefined;
 		setTimeout(() => {
 			(scrollToIndex = filteredIndices[currentIndex]), 1;
+			jumpToSection(episodeTranscript?.[scrollToIndex], scrollToIndex);
 		});
 	}
 
@@ -158,7 +156,8 @@
 				let:style
 				{style}
 				class="row"
-				class:active={index === transcriptIndex || index === filteredIndices[currentIndex]}
+				class:active={index === transcriptIndex}
+				class:searched={index === filteredIndices[currentIndex]}
 				on:click={jumpToSection.bind(this, episodeTranscript?.[index], index)}
 			>
 				<p class="transcript-text">
@@ -180,10 +179,13 @@
 	div {
 		display: flex;
 	}
-
+	div.searched p {
+		font-weight: 700;
+		color: purple;
+	}
 	div.active p {
 		font-weight: 700;
-		color: var(--accent-color-blue);
+		color: red;
 	}
 
 	.transcript-text {
@@ -231,5 +233,9 @@
 	}
 	.previous {
 		text-align: end;
+	}
+
+	.row {
+		cursor: pointer;
 	}
 </style>
