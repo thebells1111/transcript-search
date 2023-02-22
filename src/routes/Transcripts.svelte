@@ -125,9 +125,10 @@
 </script>
 
 <div class="bar-2">
-	<button class="scrolling" on:click={handleScrollStatus}>
+	<label>
+		<input type="checkbox" checked={scrollStatus === 'Enabled'} on:change={handleScrollStatus} />
 		Scrolling {scrollStatus}
-	</button>
+	</label>
 	{#if filteredIndices.length > 0}
 		<div class="index-select">
 			<button class="previous" on:click={getPreviousIndex}>&#9664</button>
@@ -173,7 +174,8 @@
 
 <style>
 	.list-height {
-		height: calc(100% - 52px);
+		height: calc(100% - 53px);
+		padding: 0 0 0 8px;
 	}
 
 	div {
@@ -200,8 +202,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 8px;
-		border-bottom: 1px solid var(--border-color);
+		padding: 8px 0 8px 8px;
+		border-bottom: 1px solid lightgray;
 	}
 
 	.index-select > span {
@@ -224,8 +226,8 @@
 		text-align: center;
 		cursor: pointer;
 	}
-	.scrolling {
-		width: auto;
+	label {
+		cursor: pointer;
 	}
 
 	.next {

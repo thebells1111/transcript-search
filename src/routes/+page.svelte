@@ -153,6 +153,10 @@
 		text-align: center;
 	}
 
+	h3 {
+		padding: 0 16px;
+	}
+
 	input {
 		width: 50%;
 	}
@@ -160,9 +164,10 @@
 		display: flex;
 		justify-content: space-between;
 		width: 100%;
-		height: calc(100vh - 230px);
+		height: calc(100vh - 250px);
 		overflow: hidden;
-		margin-bottom: 16px;
+		margin: 16px 0;
+		border: 2px solid lightgray;
 	}
 
 	li {
@@ -178,6 +183,7 @@
 		overflow: auto;
 		height: 100%;
 	}
+
 	support {
 		display: flex;
 		flex-direction: column;
