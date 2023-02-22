@@ -125,6 +125,7 @@
 </script>
 
 {#if episodeTranscript?.length}
+	<h3>{episode.title}</h3>
 	<div class="bar-2">
 		<label>
 			<input type="checkbox" checked={scrollStatus === 'Enabled'} on:change={handleScrollStatus} />
@@ -202,7 +203,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 8px 0 8px 8px;
+		padding: 0 0 0 8px;
 		border-bottom: 1px solid lightgray;
 	}
 
@@ -239,5 +240,11 @@
 
 	.row {
 		cursor: pointer;
+	}
+
+	h3 {
+		text-align: center;
+		margin: 8px 0 0 0;
+		white-space: nowrap;
 	}
 </style>

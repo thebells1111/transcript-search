@@ -29,6 +29,12 @@
 	// feedUrl = 'https://feeds.noagendaassets.com/noagenda.xml';
 	// searchInput = 'curio caster';
 
+	function handleInput(e, cb) {
+		if (e.key === 'Enter') {
+			cb();
+		}
+	}
+
 	function searchTranscripts() {
 		searchResults = [];
 		selectedEpisode = {};
@@ -81,7 +87,11 @@
 		</support>
 
 		<fetch-feed>
-			<input bind:value={feedUrl} placeholder="enter feed url" />
+			<input
+				bind:value={feedUrl}
+				placeholder="enter feed url"
+				on:keypress={(e) => handleInput(e, fetchTranscript)}
+			/>
 			<button on:click={fetchTranscript}>Get Feed</button>
 		</fetch-feed>
 		<p class="alby-address">⚡ transcriptsearchtool@getalby.com</p>
@@ -90,7 +100,11 @@
 	<h1>{feed?.title || ''}</h1>
 	{#if feed?.title}
 		<search-transcripts>
-			<input bind:value={searchInput} placeholder="search term" />
+			<input
+				bind:value={searchInput}
+				placeholder="search term"
+				on:keypress={(e) => handleInput(e, searchTranscripts)}
+			/>
 			<button on:click={searchTranscripts}>Search Transcripts</button>
 		</search-transcripts>
 		{#if searchResults?.length}
