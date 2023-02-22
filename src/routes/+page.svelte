@@ -81,7 +81,7 @@
 		</support>
 
 		<fetch-feed>
-			<input bind:value={feedUrl} />
+			<input bind:value={feedUrl} placeholder="enter feed url" />
 			<button on:click={fetchTranscript}>Get Feed</button>
 		</fetch-feed>
 		<p class="alby-address">⚡ transciptsearchtool@getalby.com</p>
@@ -90,7 +90,7 @@
 	<h1>{feed?.title || ''}</h1>
 	{#if feed?.title}
 		<search-transcripts>
-			<input bind:value={searchInput} />
+			<input bind:value={searchInput} placeholder="search term" />
 			<button on:click={searchTranscripts}>Search Transcripts</button>
 		</search-transcripts>
 		{#if searchResults?.length}

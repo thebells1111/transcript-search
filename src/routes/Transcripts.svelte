@@ -124,23 +124,23 @@
 	}
 </script>
 
-<div class="bar-2">
-	<label>
-		<input type="checkbox" checked={scrollStatus === 'Enabled'} on:change={handleScrollStatus} />
-		Scrolling {scrollStatus}
-	</label>
-	{#if filteredIndices.length > 0}
-		<div class="index-select">
-			<button class="previous" on:click={getPreviousIndex}>&#9664</button>
-			<span>
-				{currentIndex + 1} of {filteredIndices.length}
-			</span>
-			<button class="next" on:click={getNextIndex}>&#9654</button>
-		</div>
-	{/if}
-</div>
-
 {#if episodeTranscript?.length}
+	<div class="bar-2">
+		<label>
+			<input type="checkbox" checked={scrollStatus === 'Enabled'} on:change={handleScrollStatus} />
+			Scrolling {scrollStatus}
+		</label>
+		{#if filteredIndices.length > 0}
+			<div class="index-select">
+				<button class="previous" on:click={getPreviousIndex}>&#9664</button>
+				<span>
+					{currentIndex + 1} of {filteredIndices.length}
+				</span>
+				<button class="next" on:click={getNextIndex}>&#9654</button>
+			</div>
+		{/if}
+	</div>
+
 	<div class="list-height" bind:clientHeight={listHeight}>
 		<VirtualList
 			height={listHeight}
