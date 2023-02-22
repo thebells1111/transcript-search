@@ -84,7 +84,7 @@
 			<input bind:value={feedUrl} placeholder="enter feed url" />
 			<button on:click={fetchTranscript}>Get Feed</button>
 		</fetch-feed>
-		<p class="alby-address">⚡ transciptsearchtool@getalby.com</p>
+		<p class="alby-address">⚡ transcriptsearchtool@getalby.com</p>
 	</header>
 
 	<h1>{feed?.title || ''}</h1>
