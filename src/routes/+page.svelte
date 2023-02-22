@@ -65,10 +65,27 @@
 </script>
 
 <main>
-	<fetch-feed>
-		<input bind:value={feedUrl} />
-		<button on:click={fetchTranscript}>Get Feed</button>
-	</fetch-feed>
+	<header>
+		<support>
+			<p>Support Transcript Search Tool</p>
+			<p>
+				Install
+				<a
+					href="https://chrome.google.com/webstore/detail/alby-bitcoin-lightning-wa/iokeahhehimjnekafflcihljlcjccdbe"
+				>
+					<img src="/alby-small.png" alt="alby logo" class="alby-logo" />
+					Alby
+				</a>
+				today
+			</p>
+		</support>
+
+		<fetch-feed>
+			<input bind:value={feedUrl} />
+			<button on:click={fetchTranscript}>Get Feed</button>
+		</fetch-feed>
+		<p class="alby-address">⚡ transciptsearchtool@getalby.com</p>
+	</header>
 
 	<h1>{feed?.title || ''}</h1>
 	{#if feed?.title}
@@ -117,12 +134,19 @@
 		justify-content: center;
 	}
 
-	fetch-feed,
-	search-transcripts {
+	header {
 		width: 100%;
 		display: flex;
 		align-items: center;
+		justify-content: space-between;
+	}
+
+	fetch-feed,
+	search-transcripts {
+		display: flex;
+		align-items: center;
 		justify-content: center;
+		width: 100%;
 	}
 
 	h1 {
@@ -136,7 +160,7 @@
 		display: flex;
 		justify-content: space-between;
 		width: 100%;
-		height: calc(100vh - 208px);
+		height: calc(100vh - 230px);
 		overflow: hidden;
 		margin-bottom: 16px;
 	}
@@ -153,5 +177,18 @@
 		width: 50%;
 		overflow: auto;
 		height: 100%;
+	}
+	support {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	p {
+		margin: 0;
+		white-space: nowrap;
+	}
+	.alby-logo {
+		width: 20px;
 	}
 </style>
