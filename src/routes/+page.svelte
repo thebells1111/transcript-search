@@ -26,8 +26,8 @@
 	let episodeTranscript;
 
 	let feedUrl = '';
-	feedUrl = 'https://feeds.noagendaassets.com/noagenda.xml';
-	searchInput = 'curio caster';
+	// feedUrl = 'https://feeds.noagendaassets.com/noagenda.xml';
+	// searchInput = 'curio caster';
 
 	function searchTranscripts() {
 		searchResults = [];
