@@ -24,9 +24,11 @@
 	let player;
 	let transcriptIndex = 0;
 	let episodeTranscript;
+	let isLoading = false;
+	let isLoaded = false;
 
 	let feedUrl = '';
-	// feedUrl = 'https://feeds.noagendaassets.com/noagenda.xml';
+	// feedUrl = 'http://feed.nashownotes.com/mfrss.xml';
 	// searchInput = 'curio caster';
 
 	function handleInput(e, cb) {
@@ -35,22 +37,34 @@
 		}
 	}
 
-	function searchTranscripts() {
+	function searchTranscripts(recall) {
+		if (!recall) {
+			selectedEpisode = {};
+		}
 		searchResults = [];
-		selectedEpisode = {};
 		searchQuery = searchInput;
 		for (const [i, v] of feed.item.entries()) {
-			let results = [...v?.fetchedTranscript.matchAll(new RegExp(searchQuery, 'gi'))].map(
+			let results = [...(v?.fetchedTranscript?.matchAll(new RegExp(searchQuery, 'gi')) || [])].map(
 				(a) => a.index
 			);
 			if (results.length) {
 				searchResults.push([i, results]);
 			}
 		}
+		if (isLoading) {
+			setTimeout(searchTranscripts.bind(this, true), 500);
+		}
 	}
 
 	async function fetchTranscript() {
-		let res = await fetch(feedUrl);
+		isLoading = true;
+		isLoaded = false;
+		searchResults = [];
+		feed = {};
+		selectedEpisode = {};
+		searchQuery = '';
+		searchInput = '';
+		let res = await fetch('/api/proxy?q=' + encodeURIComponent(feedUrl));
 		let data = await res.text();
 		let xml2Json = parse(data, parserOptions);
 
@@ -60,13 +74,17 @@
 		let _item = [].concat(feed.item);
 		for (const [i, v] of _item.entries()) {
 			if (v['podcast:transcript']) {
-				let res = await fetch(v['podcast:transcript']['@_url']);
+				let res = await fetch(
+					'/api/proxy?q=' + encodeURIComponent(v['podcast:transcript']['@_url'])
+				);
 				let data = await res.text();
 				_item[i].fetchedTranscript = data;
 			}
 		}
 
 		feed.item = _item;
+		isLoading = false;
+		isLoaded = true;
 	}
 </script>
 
@@ -107,6 +125,7 @@
 			/>
 			<button on:click={searchTranscripts}>Search Transcripts</button>
 		</search-transcripts>
+
 		{#if searchResults?.length}
 			<pane-container>
 				<left-pane>
@@ -137,7 +156,8 @@
 				</right-pane>
 			</pane-container>
 			<Player bind:player bind:transcriptIndex bind:episodeTranscript />
-		{/if}
+		{:else if !isLoading}
+			<p>No Search Results Found</p>{/if}
 	{/if}
 </main>
 
