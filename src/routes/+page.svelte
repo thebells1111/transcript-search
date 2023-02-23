@@ -19,6 +19,7 @@
 	let selectedEpisode = {};
 	let item = [];
 	let searchResults = [];
+	let podcastIndexSearchResults = [];
 	let searchQuery;
 	let searchInput = '';
 	let player;
@@ -27,8 +28,8 @@
 	let isLoading = false;
 	let isLoaded = false;
 
-	let feedUrl = '';
-	// feedUrl = 'http://feed.nashownotes.com/mfrss.xml';
+	let indexQuery = '';
+	// indexQuery = 'no agenda';
 	// searchInput = 'curio caster';
 
 	function handleInput(e, cb) {
@@ -37,26 +38,26 @@
 		}
 	}
 
-	function searchTranscripts(recall) {
-		if (!recall) {
-			selectedEpisode = {};
-		}
+	async function searchPodcastIndex() {
 		searchResults = [];
-		searchQuery = searchInput;
-		for (const [i, v] of feed.item.entries()) {
-			let results = [...(v?.fetchedTranscript?.matchAll(new RegExp(searchQuery, 'gi')) || [])].map(
-				(a) => a.index
-			);
-			if (results.length) {
-				searchResults.push([i, results]);
-			}
-		}
-		if (isLoading) {
-			setTimeout(searchTranscripts.bind(this, true), 500);
-		}
+		feed = {};
+		selectedEpisode = {};
+		searchQuery = '';
+		searchInput = '';
+		let url = `api/queryindex?q=${encodeURIComponent(`/search/byterm?q=${indexQuery}`)}`;
+
+		const res = await fetch(url);
+		let data = await res.json();
+
+		try {
+			data = JSON.parse(data);
+			data.feeds = data.feeds || [data.feed];
+			podcastIndexSearchResults = data.feeds;
+		} catch (error) {}
 	}
 
-	async function fetchTranscript() {
+	async function fetchTranscript(feedUrl) {
+		podcastIndexSearchResults = [];
 		isLoading = true;
 		isLoaded = false;
 		searchResults = [];
@@ -86,6 +87,25 @@
 		isLoading = false;
 		isLoaded = true;
 	}
+
+	function searchTranscripts(recall) {
+		if (!recall) {
+			selectedEpisode = {};
+		}
+		searchResults = [];
+		searchQuery = searchInput;
+		for (const [i, v] of feed.item.entries()) {
+			let results = [...(v?.fetchedTranscript?.matchAll(new RegExp(searchQuery, 'gi')) || [])].map(
+				(a) => a.index
+			);
+			if (results.length) {
+				searchResults.push([i, results]);
+			}
+		}
+		if (isLoading) {
+			setTimeout(searchTranscripts.bind(this, true), 500);
+		}
+	}
 </script>
 
 <main>
@@ -106,17 +126,28 @@
 
 		<fetch-feed>
 			<input
-				bind:value={feedUrl}
-				placeholder="enter feed url"
-				on:keypress={(e) => handleInput(e, fetchTranscript)}
+				bind:value={indexQuery}
+				placeholder="search for podcast"
+				on:keypress={(e) => handleInput(e, searchPodcastIndex)}
 			/>
-			<button on:click={fetchTranscript}>Get Feed</button>
+			<button on:click={searchPodcastIndex}>Search Directory</button>
 		</fetch-feed>
 		<p class="alby-address">⚡ transcriptsearchtool@getalby.com</p>
 	</header>
 
-	<h1>{feed?.title || ''}</h1>
+	{#if podcastIndexSearchResults.length}
+		<ul>
+			{#each podcastIndexSearchResults as feed}
+				<li class="pi-result" on:click={fetchTranscript.bind(this, feed.originalUrl)}>
+					<img src={feed.artwork || feed.image} alt={feed.title} width="40" height="40" />
+					{feed.title}
+				</li>
+			{/each}
+		</ul>
+	{/if}
+
 	{#if feed?.title}
+		<h1>{feed?.title || ''}</h1>
 		<search-transcripts>
 			<input
 				bind:value={searchInput}
@@ -230,5 +261,14 @@
 	}
 	.alby-logo {
 		width: 20px;
+	}
+
+	.pi-result {
+		display: flex;
+		align-items: center;
+	}
+
+	.pi-result img {
+		padding-right: 8px;
 	}
 </style>

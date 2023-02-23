@@ -245,6 +245,6 @@
 	h3 {
 		text-align: center;
 		margin: 8px 0 0 0;
-		white-space: nowrap;
+		white-space: ;
 	}
 </style>
