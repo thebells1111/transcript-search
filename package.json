@@ -14,13 +14,17 @@
 		"@sveltejs/adapter-vercel": "^2.0.4",
 		"@sveltejs/kit": "^1.5.0",
 		"fast-xml-parser": "^3.20.3",
+		"html-entities": "^2.3.2",
 		"parse-srt": "^1.0.0-alpha",
 		"prettier": "^2.8.0",
 		"prettier-plugin-svelte": "^2.8.1",
 		"svelte": "^3.54.0",
 		"svelte-tiny-virtual-list": "^1.1.6",
-		"vite": "^4.0.0",
-		"html-entities": "^2.3.2"
+		"vite": "^4.0.0"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"crypto-browserify": "^3.12.0",
+		"dotenv": "^16.0.3"
+	}
 }

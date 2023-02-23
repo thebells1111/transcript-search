@@ -138,9 +138,9 @@
 	{#if podcastIndexSearchResults.length}
 		<ul>
 			{#each podcastIndexSearchResults as feed}
-				<li class="pi-result" on:click={fetchTranscript.bind(this, feed.originalUrl)}>
-					<img src={feed.artwork || feed.image} alt={feed.title} width="40" height="40" />
-					{feed.title}
+				<li class="pi-result" on:click={fetchTranscript.bind(this, feed?.originalUrl)}>
+					<img src={feed?.artwork || feed?.image} alt={feed?.title} width="40" height="40" />
+					{feed?.title}
 				</li>
 			{/each}
 		</ul>
