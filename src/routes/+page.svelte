@@ -17,7 +17,6 @@
 
 	let feed = {};
 	let selectedEpisode = {};
-	let item = [];
 	let searchResults = [];
 	let podcastIndexSearchResults = [];
 	let searchQuery;
@@ -29,8 +28,7 @@
 	let isLoaded = false;
 
 	let indexQuery = '';
-	// indexQuery = 'no agenda';
-	// searchInput = 'curio caster';
+	indexQuery = 'podcasting 2.0';
 
 	function handleInput(e, cb) {
 		if (e.key === 'Enter') {
@@ -65,6 +63,7 @@
 		selectedEpisode = {};
 		searchQuery = '';
 		searchInput = '';
+		searchInput = '"rad"';
 		let res = await fetch('/api/proxy?q=' + encodeURIComponent(feedUrl));
 		let data = await res.text();
 		let xml2Json = parse(data, parserOptions);
@@ -93,11 +92,24 @@
 			selectedEpisode = {};
 		}
 		searchResults = [];
-		searchQuery = searchInput;
-		for (const [i, v] of feed.item.entries()) {
-			let results = [...(v?.fetchedTranscript?.matchAll(new RegExp(searchQuery, 'gi')) || [])].map(
-				(a) => a.index
-			);
+		searchQuery = searchInput || '';
+
+		const numItems = feed.item.length;
+
+		function search(string, searchQuery) {
+			let regex;
+			if (searchQuery.startsWith('"') && searchQuery.endsWith('"')) {
+				const word = searchQuery.slice(1, -1);
+				regex = new RegExp(`\\b${word}\\b[\\p{P}-]*`, 'gi');
+			} else {
+				regex = new RegExp(searchQuery, 'gi');
+			}
+			return string.match(regex) || [];
+		}
+
+		for (let i = 0; i < numItems; i++) {
+			const v = feed.item[i];
+			const results = search(v.fetchedTranscript, searchQuery);
 			if (results.length) {
 				searchResults.push([i, results]);
 			}
@@ -151,7 +163,7 @@
 		<search-transcripts>
 			<input
 				bind:value={searchInput}
-				placeholder="search term"
+				placeholder={`search term  (put exact matches inside of double quotes, i.e. "rad"`}
 				on:keypress={(e) => handleInput(e, searchTranscripts)}
 			/>
 			<button on:click={searchTranscripts}>Search Transcripts</button>
@@ -175,6 +187,13 @@
 							</li>
 						{/each}
 					</ul>
+					<cashapp>
+						<div>
+							<h3>Do you like this service?</h3>
+							<h4>Consider using CashApp to <br /> help pay for development and hosting.</h4>
+						</div>
+						<img src="/$curiocaster.png" />
+					</cashapp>
 				</left-pane>
 				<right-pane>
 					<Transcripts
@@ -220,11 +239,13 @@
 
 	h3 {
 		padding: 0 16px;
+		margin: 8px 0;
 	}
 
 	input {
 		width: 50%;
 	}
+
 	pane-container {
 		display: flex;
 		justify-content: space-between;
@@ -247,6 +268,37 @@
 		width: 50%;
 		overflow: auto;
 		height: 100%;
+	}
+
+	right-pane {
+		border-left: 1px solid lightgray;
+	}
+	left-pane {
+		border-right: 1px solid lightgray;
+	}
+	left-pane ul {
+		overflow: auto;
+		height: calc(100% - 308px);
+		border-bottom: 2px solid lightgray;
+		margin: 8px 0 0 0;
+	}
+
+	cashapp {
+		display: flex;
+		height: 268px;
+		justify-content: space-evenly;
+	}
+
+	cashapp h4 {
+		margin: 0 0 12px 0;
+		text-align: center;
+	}
+	cashapp h3 {
+		text-align: center;
+	}
+
+	cashapp img {
+		margin: 8px;
 	}
 
 	support {
