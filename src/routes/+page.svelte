@@ -17,8 +17,8 @@
 
 	let feed = {};
 	let selectedEpisode = {};
-	let item = [];
 	let searchResults = [];
+	let podcastIndexSearchResults = [];
 	let searchQuery;
 	let searchInput = '';
 	let player;
@@ -27,9 +27,8 @@
 	let isLoading = false;
 	let isLoaded = false;
 
-	let feedUrl = '';
-	// feedUrl = 'http://feed.nashownotes.com/mfrss.xml';
-	// searchInput = 'curio caster';
+	let indexQuery = '';
+	indexQuery = 'podcasting 2.0';
 
 	function handleInput(e, cb) {
 		if (e.key === 'Enter') {
@@ -37,26 +36,26 @@
 		}
 	}
 
-	function searchTranscripts(recall) {
-		if (!recall) {
-			selectedEpisode = {};
-		}
+	async function searchPodcastIndex() {
 		searchResults = [];
-		searchQuery = searchInput;
-		for (const [i, v] of feed.item.entries()) {
-			let results = [...(v?.fetchedTranscript?.matchAll(new RegExp(searchQuery, 'gi')) || [])].map(
-				(a) => a.index
-			);
-			if (results.length) {
-				searchResults.push([i, results]);
-			}
-		}
-		if (isLoading) {
-			setTimeout(searchTranscripts.bind(this, true), 500);
-		}
+		feed = {};
+		selectedEpisode = {};
+		searchQuery = '';
+		searchInput = '';
+		let url = `api/queryindex?q=${encodeURIComponent(`/search/byterm?q=${indexQuery}`)}`;
+
+		const res = await fetch(url);
+		let data = await res.json();
+
+		try {
+			data = JSON.parse(data);
+			data.feeds = data.feeds || [data.feed];
+			podcastIndexSearchResults = data.feeds;
+		} catch (error) {}
 	}
 
-	async function fetchTranscript() {
+	async function fetchTranscript(feedUrl) {
+		podcastIndexSearchResults = [];
 		isLoading = true;
 		isLoaded = false;
 		searchResults = [];
@@ -64,6 +63,7 @@
 		selectedEpisode = {};
 		searchQuery = '';
 		searchInput = '';
+		searchInput = '"rad"';
 		let res = await fetch('/api/proxy?q=' + encodeURIComponent(feedUrl));
 		let data = await res.text();
 		let xml2Json = parse(data, parserOptions);
@@ -86,6 +86,38 @@
 		isLoading = false;
 		isLoaded = true;
 	}
+
+	function searchTranscripts(recall) {
+		if (!recall) {
+			selectedEpisode = {};
+		}
+		searchResults = [];
+		searchQuery = searchInput || '';
+
+		const numItems = feed.item.length;
+
+		function search(string, searchQuery) {
+			let regex;
+			if (searchQuery.startsWith('"') && searchQuery.endsWith('"')) {
+				const word = searchQuery.slice(1, -1);
+				regex = new RegExp(`\\b${word}\\b[\\p{P}-]*`, 'gi');
+			} else {
+				regex = new RegExp(searchQuery, 'gi');
+			}
+			return string.match(regex) || [];
+		}
+
+		for (let i = 0; i < numItems; i++) {
+			const v = feed.item[i];
+			const results = search(v.fetchedTranscript, searchQuery);
+			if (results.length) {
+				searchResults.push([i, results]);
+			}
+		}
+		if (isLoading) {
+			setTimeout(searchTranscripts.bind(this, true), 500);
+		}
+	}
 </script>
 
 <main>
@@ -106,21 +138,32 @@
 
 		<fetch-feed>
 			<input
-				bind:value={feedUrl}
-				placeholder="enter feed url"
-				on:keypress={(e) => handleInput(e, fetchTranscript)}
+				bind:value={indexQuery}
+				placeholder="search for podcast"
+				on:keypress={(e) => handleInput(e, searchPodcastIndex)}
 			/>
-			<button on:click={fetchTranscript}>Get Feed</button>
+			<button on:click={searchPodcastIndex}>Search Directory</button>
 		</fetch-feed>
 		<p class="alby-address">⚡ transcriptsearchtool@getalby.com</p>
 	</header>
 
-	<h1>{feed?.title || ''}</h1>
+	{#if podcastIndexSearchResults.length}
+		<ul>
+			{#each podcastIndexSearchResults as feed}
+				<li class="pi-result" on:click={fetchTranscript.bind(this, feed?.originalUrl)}>
+					<img src={feed?.artwork || feed?.image} alt={feed?.title} width="40" height="40" />
+					{feed?.title}
+				</li>
+			{/each}
+		</ul>
+	{/if}
+
 	{#if feed?.title}
+		<h1>{feed?.title || ''}</h1>
 		<search-transcripts>
 			<input
 				bind:value={searchInput}
-				placeholder="search term"
+				placeholder={`search term  (put exact matches inside of double quotes, i.e. "rad"`}
 				on:keypress={(e) => handleInput(e, searchTranscripts)}
 			/>
 			<button on:click={searchTranscripts}>Search Transcripts</button>
@@ -144,6 +187,13 @@
 							</li>
 						{/each}
 					</ul>
+					<cashapp>
+						<div>
+							<h3>Do you like this service?</h3>
+							<h4>Consider using CashApp to <br /> help pay for development and hosting.</h4>
+						</div>
+						<img src="/$curiocaster.png" />
+					</cashapp>
 				</left-pane>
 				<right-pane>
 					<Transcripts
@@ -189,11 +239,13 @@
 
 	h3 {
 		padding: 0 16px;
+		margin: 8px 0;
 	}
 
 	input {
 		width: 50%;
 	}
+
 	pane-container {
 		display: flex;
 		justify-content: space-between;
@@ -218,6 +270,37 @@
 		height: 100%;
 	}
 
+	right-pane {
+		border-left: 1px solid lightgray;
+	}
+	left-pane {
+		border-right: 1px solid lightgray;
+	}
+	left-pane ul {
+		overflow: auto;
+		height: calc(100% - 308px);
+		border-bottom: 2px solid lightgray;
+		margin: 8px 0 0 0;
+	}
+
+	cashapp {
+		display: flex;
+		height: 268px;
+		justify-content: space-evenly;
+	}
+
+	cashapp h4 {
+		margin: 0 0 12px 0;
+		text-align: center;
+	}
+	cashapp h3 {
+		text-align: center;
+	}
+
+	cashapp img {
+		margin: 8px;
+	}
+
 	support {
 		display: flex;
 		flex-direction: column;
@@ -230,5 +313,14 @@
 	}
 	.alby-logo {
 		width: 20px;
+	}
+
+	.pi-result {
+		display: flex;
+		align-items: center;
+	}
+
+	.pi-result img {
+		padding-right: 8px;
 	}
 </style>

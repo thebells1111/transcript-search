@@ -74,13 +74,26 @@
 			scrollToAlignment = 'start';
 		}
 
+		function search(string, searchQuery) {
+			let regex;
+			if (searchQuery.startsWith('"') && searchQuery.endsWith('"')) {
+				const word = searchQuery.slice(1, -1);
+				regex = new RegExp(`\\b${word}\\b[\\p{P}-]*`, 'gi');
+			} else {
+				regex = new RegExp(searchQuery, 'gi');
+			}
+
+			return string.match(regex);
+		}
+
 		function getAllIndexes(arr, val) {
 			var indexes = [],
 				i;
-			for (i = 0; i < arr.length; i++)
-				if (arr[i].text.toLowerCase().includes(val.toLowerCase())) {
+			for (i = 0; i < arr.length; i++) {
+				if (search(arr[i].text, val)) {
 					indexes.push(i);
 				}
+			}
 			return indexes;
 		}
 	}
@@ -177,7 +190,7 @@
 
 <style>
 	.list-height {
-		height: calc(100% - 53px);
+		height: calc(100% - 67px);
 		padding: 0 0 0 8px;
 	}
 
