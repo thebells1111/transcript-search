@@ -22,7 +22,9 @@
 
 	$: if (episode && episode.fetchedTranscript) {
 		console.log(episode['podcast:transcript']);
-		const transcriptSRT = episode?.['podcast:transcript']?.['@_type'] === 'application/srt';
+		const type = episode?.['podcast:transcript']?.['@_type'];
+		const transcriptSRT =
+			type === 'application/srt' || type === 'text/srt' || type === 'application/x-subrip';
 
 		if (transcriptSRT) {
 			let transcript = parseSRT(episode.fetchedTranscript);
