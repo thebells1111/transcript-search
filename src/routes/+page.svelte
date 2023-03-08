@@ -28,7 +28,7 @@
 	let isLoaded = false;
 
 	let indexQuery = '';
-	indexQuery = 'podcasting 2.0';
+	// indexQuery = 'podcasting 2.0';
 
 	function handleInput(e, cb) {
 		if (e.key === 'Enter') {
@@ -63,7 +63,7 @@
 		selectedEpisode = {};
 		searchQuery = '';
 		searchInput = '';
-		searchInput = '"rad"';
+		// searchInput = '"rad"';
 		let res = await fetch('/api/proxy?q=' + encodeURIComponent(feedUrl));
 		let data = await res.text();
 		let xml2Json = parse(data, parserOptions);
@@ -73,10 +73,12 @@
 		feed = xmlJson.rss.channel;
 		let _item = [].concat(feed.item);
 		for (const [i, v] of _item.entries()) {
-			if (v['podcast:transcript']) {
-				let res = await fetch(
-					'/api/proxy?q=' + encodeURIComponent(v['podcast:transcript']['@_url'])
-				);
+			let transcript = []
+				.concat(v['podcast:transcript'])
+				.find((v) => v?.['@_type'].includes('srt'));
+
+			if (transcript) {
+				let res = await fetch('/api/proxy?q=' + encodeURIComponent(transcript['@_url']));
 				let data = await res.text();
 				_item[i].fetchedTranscript = data;
 			}
@@ -104,7 +106,7 @@
 			} else {
 				regex = new RegExp(searchQuery, 'gi');
 			}
-			return string.match(regex) || [];
+			return string?.match(regex) || [];
 		}
 
 		for (let i = 0; i < numItems; i++) {
