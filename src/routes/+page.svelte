@@ -81,6 +81,7 @@
 				let res = await fetch('/api/proxy?q=' + encodeURIComponent(transcript['@_url']));
 				let data = await res.text();
 				_item[i].fetchedTranscript = data;
+				_item[i]['podcast:transcript'] = transcript;
 			}
 		}
 
