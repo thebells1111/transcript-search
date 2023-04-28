@@ -75,7 +75,7 @@
 		for (const [i, v] of _item.entries()) {
 			let transcript = []
 				.concat(v['podcast:transcript'])
-				.find((v) => v?.['@_type'].includes('srt'));
+				.find((v) => v?.['@_type'].includes('srt') || v?.['@_type'].includes('x-subrip'));
 
 			if (transcript) {
 				let res = await fetch('/api/proxy?q=' + encodeURIComponent(transcript['@_url']));
